@@ -1,0 +1,44 @@
+VRAM GUARD 1.0 - protection des zones défectueuses de la mémoire vidéo (cartes NVIDIA, Windows 10/11)
+=================================================================================================
+
+À QUOI ÇA SERT
+  Certaines cartes graphiques ont une petite zone de mémoire vidéo (VRAM) abîmée.
+  Symptômes typiques : artefacts ou plantages dans les jeux seulement quand la VRAM se remplit,
+  IA locale (Ollama, LM Studio...) qui répond "000000", "/////" ou du charabia, erreurs CUDA
+  aléatoires. VRAM Guard teste la mémoire libre et "réserve" les zones défectueuses pour
+  qu'aucun autre programme ne les utilise.
+
+UTILISATION
+  1. Fermer les jeux et programmes lourds (pour pouvoir tester toute la carte).
+  2. Lancer VRAM-Guard.exe -> cliquer "Tester maintenant".
+     - "Aucune erreur" : votre VRAM libre est saine, inutile d'installer.
+     - "N bloc(s) défectueux" : cliquer "Installer (protection permanente)".
+  3. Une fois installé, il se lance tout seul à chaque ouverture de session (sans fenêtre,
+     priorité basse, 0 % de processeur au repos). Les blocs défectueux restent réservés en
+     permanence ; quand la carte est presque libre, il refait un test au plus toutes les 30 min.
+  Pour arrêter : relancer VRAM-Guard.exe -> "Désinstaller".
+
+  Pas besoin de droits administrateur. Fichiers : %LOCALAPPDATA%\VRAM-Guard
+  (copie du programme, journal vram-guard.log, état etat.txt). Lancement automatique :
+  raccourci "VRAM Guard" dans le dossier Démarrage de Windows.
+
+LIMITES (à lire)
+  - Cartes NVIDIA uniquement (pilote récent). Ne fonctionne pas sur AMD / Intel.
+  - Ne répare pas la carte : c'est un contournement. Si la carte est sous garantie, faites-la
+    échanger. Le journal (bloc défectueux + nombre d'erreurs) peut servir de preuve.
+  - Il ne teste que la mémoire libre au moment du test : lancez le test carte "vide".
+  - Si un jeu remplit TOUTE la VRAM, Windows peut déplacer la mémoire réservée ; le test
+    automatique suivant (carte presque libre) re-réserve la zone, mais entre-temps le défaut
+    peut réapparaître. Baisser un peu les réglages graphiques (textures) aide.
+  - Certains antivirus se méfient des programmes Python compilés (faux positif). Le code
+    source complet est fourni (vram_guard_app.py) : on peut le lire ou le recompiler.
+
+COMMENT ÇA MARCHE
+  La VRAM libre est allouée par blocs de 64 Mo, remplie avec 4 motifs (dépendants de
+  l'adresse), relue sur la carte graphique, et chaque différence est comptée. Les blocs
+  avec erreurs restent alloués par VRAM Guard ; les autres sont rendus immédiatement.
+  Aucune dépendance : seulement le pilote NVIDIA (nvcuda.dll, nvml.dll).
+
+RECOMPILER (facultatif)
+  python -m pip install pyinstaller
+  pyinstaller --onefile --noconsole --name VRAM-Guard vram_guard_app.py

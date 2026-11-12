@@ -1,0 +1,6 @@
+# L'executable est publie dans les Releases GitHub, pas dans le depot
+*.exe
+build/
+dist/
+*.spec
+__pycache__/
