@@ -46,9 +46,22 @@ Les fichiers sont dans `%LOCALAPPDATA%\VRAM-Guard` : la copie du programme, le j
 - Plafond : 1 Gio réservé par carte. Plusieurs cartes NVIDIA sont gérées.
 - Aucune dépendance : seulement le pilote NVIDIA (`nvcuda.dll`, `nvml.dll`).
 
+## Version AMD (Radeon)
+
+`vram_guard_amd_app.py` est la même application pour les cartes AMD dédiées. Elle s'utilise de la même façon (`--test`, `--background`, fenêtre) et range ses fichiers dans `%LOCALAPPDATA%\VRAM-Guard-AMD`.
+
+- CUDA/PTX est remplacé par OpenCL (`OpenCL.dll`, fourni par le pilote AMD), avec les mêmes motifs de test.
+- NVML est remplacé par DXGI et par les compteurs de performance Windows « GPU Adapter Memory », qui donnent la VRAM utilisée par tous les programmes.
+- Les puces graphiques intégrées (mémoire partagée avec la RAM) sont ignorées.
+- Le pilote AMD garde en cache une partie de la VRAM libérée tant que le programme tourne. En arrière-plan, le test est donc fait dans un processus séparé qui se ferme : une carte saine ne perd aucune VRAM. Si des blocs défectueux sont gardés, comptez environ 1 à 2 Gio de VRAM retenus en plus des blocs.
+- Si la carte est presque pleine pendant le test, une partie des blocs peut partir en mémoire partagée : le journal le signale (« ATTENTION »). Testez carte vide.
+- Testé sur une Radeon RX 7800 XT (16 Gio, saine) ; la détection a été vérifiée avec des erreurs simulées (`VRAM_GUARD_SIMULATE=3,50`), pas sur une carte réellement défectueuse.
+
+Compilation : `pyinstaller --onefile --noconsole --name VRAM-Guard-AMD vram_guard_amd_app.py`
+
 ## Limites
 
-- **Cartes NVIDIA uniquement**, avec un pilote récent. Ne fonctionne pas sur AMD ni Intel.
+- `vram_guard_app.py` : **cartes NVIDIA uniquement**, avec un pilote récent. Pour AMD, voir la section ci-dessus. Intel n'est pas géré.
 - Il ne teste que la mémoire **libre** au moment du test : lancez le test avec la carte la plus vide possible.
 - Si un jeu remplit **toute** la VRAM, Windows peut déplacer la mémoire réservée. Le test automatique suivant (carte presque libre) re-réserve la zone, mais entre-temps le défaut peut réapparaître. Baisser un peu la qualité des textures aide.
 - Certains antivirus se méfient des programmes Python compilés avec PyInstaller (faux positif). Le code source complet est ici : vous pouvez le lire ou le recompiler.
