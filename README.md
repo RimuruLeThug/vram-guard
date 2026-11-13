@@ -13,7 +13,7 @@ VRAM Guard teste la VRAM libre, puis **garde pour lui** les blocs défectueux : 
 
 ## Téléchargement
 
-Téléchargez `VRAM-Guard.exe` dans la page [Releases](../../releases). C'est un fichier unique, sans installation ni droits administrateur.
+Téléchargez `VRAM-Guard.exe` (NVIDIA) ou `VRAM-Guard-AMD.exe` (AMD Radeon) dans la page [Releases](../../releases). C'est un fichier unique, sans installation ni droits administrateur.
 
 ## Utilisation
 
